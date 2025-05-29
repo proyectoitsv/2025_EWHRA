@@ -1,0 +1,21 @@
+stateDiagram-v2
+    [*] --> Inactivo
+
+    Inactivo --> Iniciando : Usuario coloca el casco y enciende el sistema
+
+    Iniciando --> Monitoreando : Señales EEG estables detectadas
+
+    Monitoreando --> Estado_Óptimo : Niveles alfa dentro del umbral
+    Monitoreando --> Relajación_Excesiva : Niveles alfa superan el umbral
+
+    Estado_Óptimo --> Relajación_Excesiva : Se detecta exceso de ondas alfa
+    Relajación_Excesiva --> Estado_Óptimo : Se recupera la concentración
+
+    Estado_Óptimo --> Fin_Sesion : Usuario finaliza sesión
+    Relajación_Excesiva --> Fin_Sesion : Usuario finaliza sesión
+
+    Fin_Sesion --> [*]
+
+    %% Opcionalmente podés agregar errores o reinicios
+    Iniciando --> Error : Señal EEG no detectada
+    Error --> Inactivo : Reinicio del sistema

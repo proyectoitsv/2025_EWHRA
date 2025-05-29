@@ -1,0 +1,18 @@
+sequenceDiagram
+    participant Usuario
+    participant Casco_EEG
+    participant Interfaz_Grafica
+    participant Sistema_Retroalimentacion
+
+    Usuario ->> Casco_EEG: Coloca el casco y enciende el sistema
+    Casco_EEG ->> Casco_EEG: Comienza detección de ondas cerebrales
+    Casco_EEG ->> Interfaz_Grafica: Envía datos EEG en tiempo real
+    Interfaz_Grafica ->> Interfaz_Grafica: Procesa señal alfa y calcula potencia
+
+    alt Relajación dentro del umbral
+        Interfaz_Grafica ->> Usuario: Muestra estado: "Concentración adecuada"
+    else Exceso de relajación detectado
+        Interfaz_Grafica ->> Sistema_Retroalimentacion: Activar alerta (vibración / LED)
+        Sistema_Retroalimentacion ->> Usuario: Alerta por relajación excesiva
+        Interfaz_Grafica ->> Usuario: Muestra estado: "Relajación excesiva detectada"
+    end

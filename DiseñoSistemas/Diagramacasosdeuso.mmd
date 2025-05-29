@@ -1,0 +1,18 @@
+---
+config:
+  theme: default
+  layout: fixed
+---
+flowchart TD
+ subgraph subGraph0["Sistema EWHRA"]
+        A1["Colocar el casco EEG"]
+        A2["Visualizar nivel de relajación"]
+        A3["Recibir alertas de relajación"]
+        A4["Registrar sesión"]
+        A5["Autogestionar atención"]
+        B1["Configurar umbral de relajación"]
+        B2["Monitorear registros"]
+        B3["Ajustar parámetros del sistema"]
+  end
+    Estudiante(("Estudiante")) --> A1 & A2 & A3 & A4 & A5
+    Investigador(("Desarrollador / Investigador")) --> B1 & B2 & B3
