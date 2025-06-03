@@ -1,3 +1,15 @@
+# Entrega final del anteproyecto 3/6/25
+
+El informe avanzó mucho desde la presentación original. Puede ser que algunas cosas sean repetitivas. No obstante al ser un tema complejo de entender es probable que esa reiteración ayude. Luego en la pagina 12 hay un resaltado en amarillo que no se a que hacer referencia.
+
+Algunas cosas a tener en cuenta para proximos informes:
+
+* Si bien lo de las ondas está explicado, por ejemplo a mí no me queda claro como estas camian en el tiempo. Es decir ustedes han planteado la clasificación de las ondas, pero no como se vinculan. Se me ocurre tener un EEG de algun tiempo y marcar ese cambio de las ondas.
+* No mencionan nada de la aislación que deben tener estos equipos. Así como ustedes van a poder sacar ondas del cerebro, pueden meter también. En general en estos equipos es muy importante la fuente o el sistema de alimentación que se use.
+* No entiendo porque usarían 1 o 2 sensores. De lo que leo (en una parte habla que mide la diferencia de potencial) hance falta si o si 2 sensores al menos. Si tengo 3 puedo medir 3 diferencias de potencial, pero al menos para hacer la diferencia necesito 2.
+* También sumaría alguna imagen mas explicando las zonas de la cabeza y mostrando exactamente donde van los sensores. COn esto último pienso que podrían haber puesto algunas imagenes más.
+
+
 #  Presentación  25/04
 
 * Cuando hay algo gracioso hay que decirlo serio, con convicción y punto.
