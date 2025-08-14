@@ -1,4 +1,3 @@
-# 2025_EWHRA
 # EWHRA - Electroencephalographic Wave Helmet to Regulating Attention
 
 ## 📋 Resumen del Proyecto
