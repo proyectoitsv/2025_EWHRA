@@ -60,18 +60,15 @@ Desarrollar un sistema portátil que, mediante señales EEG, detecte en tiempo r
 
 ## 🧩 Arquitectura del Sistema
 
-[Electrodos EEG]
-↓
-[Amplificador INA129P]
-↓
-[Filtro Pasa Banda TL081 - 13–30Hz]
-↓
-[Arduino Nano - Lectura ADC]
-↓
-[Lógica de Umbral]
-↓
-[Bluetooth HC-05] → [Interfaz Gráfica]
-
+```mermaid
+flowchart TD
+    A[Electrodos EEG] --> B[Amplificador de Instrumentación INA129P]
+    B --> C[Filtro Pasa Banda TL081 - 13–30 Hz]
+    C --> D[Arduino Nano - Lectura ADC]
+    D --> E[Lógica de Umbral]
+    E --> F[Bluetooth HC-05]
+    F --> G[Interfaz Gráfica en PC o Móvil]
+```
 ---
 
 ## 📅 Plan de Desarrollo
