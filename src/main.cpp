@@ -1,120 +1,120 @@
+// --- Inclusión de librerías BLE del ESP32 ---
+#include <BLEDevice.h>    // Manejo del dispositivo BLE (inicialización, nombre, etc.)
+#include <BLEServer.h>    // Permite crear un servidor BLE (ESP32 actúa como periférico)
+#include <BLEUtils.h>     // Utilidades auxiliares para BLE
+#include <BLE2902.h>      // Descriptor 0x2902: permite al cliente activar NOTIFY/INDICATE
 
-#include <BLEDevice.h>
-#include <BLEServer.h>
-#include <BLEUtils.h>
-#include <BLE2902.h>
-#include <BLE2901.h>
+// --- Declaraciones globales de objetos BLE ---
+BLEServer *pServer = NULL;                      // puntero al servidor BLE
+BLECharacteristic *pADCCharacteristic = NULL;   // característica para el valor ADC crudo
 
-BLEServer *pServer = NULL;
-BLECharacteristic *pCharacteristic = NULL;
-BLE2901 *descriptor_2901 = NULL;
+// --- Flags de estado de conexión ---
+bool deviceConnected = false;    // true si hay un cliente BLE conectado actualmente
+bool oldDeviceConnected = false; // estado anterior (usado para detectar cambios)
 
-bool deviceConnected = false;
-bool oldDeviceConnected = false;
+#define SIGNAL_PIN 0  // Pin analógico usado para leer la señal (elegir 0..4 en ESP32-C3)
 
-// Pin analógico - GPIO 0, 1, 2, 3 o 4 son las mejores opciones
-#define SIGNAL_PIN 0  // Cambia a 0, 1, 2, 3 o 4 según tu conexión
+// --- UUIDs del servicio y características (COMPATIBLES CON LA APP EWHRA) ---
+#define SERVICE_UUID "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"
+#define ADC_CHARACTERISTIC_UUID "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
 
-#define SERVICE_UUID "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
-#define CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
-
+// --- Clase para manejar eventos de conexión/desconexión del servidor BLE ---
 class MyServerCallbacks : public BLEServerCallbacks {
-  void onConnect(BLEServer *pServer) {
-    deviceConnected = true;
-    Serial.println("Cliente conectado");
+  void onConnect(BLEServer *pServer) {     // Se llama cuando un cliente se conecta
+    deviceConnected = true;                // actualizar flag
+    Serial.println("✓ Cliente conectado a EWHRA");
   };
-
-  void onDisconnect(BLEServer *pServer) {
-    deviceConnected = false;
-    Serial.println("Cliente desconectado");
+  void onDisconnect(BLEServer *pServer) {  // Se llama cuando un cliente se desconecta
+    deviceConnected = false;               // actualizar flag
+    Serial.println("✗ Cliente desconectado");
   }
 };
-#include <Arduino.h>
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(115200);           // Iniciar monitor serie a 115200 baudios
+  Serial.println("\n=== EWHRA - Sistema de Monitoreo EEG ===");
 
-  // Configurar resolución del ADC a 12 bits (0-4095)
-  analogReadResolution(12);
+  analogReadResolution(12);      // Establecer resolución ADC a 12 bits => lecturas 0..4095
+  pinMode(SIGNAL_PIN, INPUT);    // Configurar el pin analógico como entrada
 
-  pinMode(SIGNAL_PIN, INPUT);
+  BLEDevice::init("EWHRA");      // Inicializar stack BLE y poner nombre visible "EWHRA"
 
-  // Create the BLE Device
-  BLEDevice::init("EWHRA");
+  pServer = BLEDevice::createServer();           // Crear el servidor BLE
+  pServer->setCallbacks(new MyServerCallbacks()); // Asignar callbacks de conexión
 
-  // Create the BLE Server
-  pServer = BLEDevice::createServer();
-  pServer->setCallbacks(new MyServerCallbacks());
+  BLEService *pService = pServer->createService(SERVICE_UUID); // Crear servicio con UUID
 
-  // Create the BLE Service
-  BLEService *pService = pServer->createService(SERVICE_UUID);
+  // --- Característica única: Valor ADC (0-4095) ---
+  pADCCharacteristic = pService->createCharacteristic(
+    ADC_CHARACTERISTIC_UUID,
+    BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY
+  );
+  pADCCharacteristic->addDescriptor(new BLE2902()); // Añadir descriptor 0x2902 para NOTIFY
+  pADCCharacteristic->setValue("0");                 // Valor inicial
 
-  // Create a BLE Characteristic
-  pCharacteristic = pService->createCharacteristic(
-    CHARACTERISTIC_UUID,
-    BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE | BLECharacteristic::PROPERTY_NOTIFY | BLECharacteristic::PROPERTY_INDICATE);
+  pService->start(); // Iniciar el servicio BLE (hace disponible las características)
 
-  // Creates BLE Descriptor 0x2902: Client Characteristic Configuration Descriptor (CCCD)
-  pCharacteristic->addDescriptor(new BLE2902());
-
-  // Adds also the Characteristic User Description - 0x2901 descriptor
-  descriptor_2901 = new BLE2901();
-  descriptor_2901->setDescription("Analog sensor voltage reading");
-  descriptor_2901->setAccessPermissions(ESP_GATT_PERM_READ);
-  pCharacteristic->addDescriptor(descriptor_2901);
-
-  // Start the service
-  pService->start();
-
-  // Start advertising
+  // --- Advertising (publicidad) para que clientes encuentren el servicio ---
   BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
-  pAdvertising->addServiceUUID(SERVICE_UUID);
-  pAdvertising->setScanResponse(false);
-  pAdvertising->setMinPreferred(0x0);
-  BLEDevice::startAdvertising();
-
-  Serial.println("Esperando conexión de cliente...");
+  pAdvertising->addServiceUUID(SERVICE_UUID);  // Incluir el UUID del servicio en el advertising
+  pAdvertising->setScanResponse(true);         // Habilitar respuesta de escaneo
+  pAdvertising->setMinPreferred(0x06);         // Configurar intervalo mínimo
+  pAdvertising->setMaxPreferred(0x12);         // Configurar intervalo máximo
+  BLEDevice::startAdvertising();               // Empezar a anunciarse
+  
+  Serial.println("✓ Servicio BLE iniciado");
+  Serial.println("✓ Dispositivo: EWHRA");
+  Serial.print("✓ Servicio UUID: ");
+  Serial.println(SERVICE_UUID);
+  Serial.print("✓ ADC Characteristic UUID: ");
+  Serial.println(ADC_CHARACTERISTIC_UUID);
+  Serial.println("→ Esperando conexión de la app...\n");
 }
 
 void loop() {
-  // notify changed value
+  // --- Si hay un cliente conectado, leer ADC y notificar ---
   if (deviceConnected) {
-    // Leer valor analógico (0-4095 con 12 bits)
-    int adcValue = analogRead(SIGNAL_PIN);
+    int adcValue = analogRead(SIGNAL_PIN);  // Leer ADC: 0..4095 (12 bits)
+    float voltaje = adcValue * (3.3 / 4095.0); // Convertir a voltaje (solo para debug local)
 
-    // Convertir a voltaje (ESP32-C3 tiene referencia de 3.3V)
-    float voltaje = adcValue * (3.3 / 4095.0);
-
+    // Imprimir en monitor serie para depuración local
     Serial.print("ADC: ");
     Serial.print(adcValue);
-    Serial.print(" | Voltaje: ");
-    Serial.print(voltaje, 3);
-    Serial.println(" V");
+    Serial.print(" (");
+    Serial.print(voltaje, 2);
+    Serial.print("V) | Nivel: ");
+    
+    // Mostrar nivel según umbrales (igual que en la app)
+    if (adcValue >= 3000) {
+      Serial.println("🟢 ALTO");
+    } else if (adcValue >= 1500) {
+      Serial.println("🟡 MEDIO");
+    } else {
+      Serial.println("🔴 BAJO");
+    }
 
-    // Convertir el voltaje a string y enviarlo por BLE
-    char entrada[16];
-    dtostrf(voltaje, 4, 2, entrada);  // Formato: 4 dígitos totales, 2 decimales
+    // Preparar string para enviar por BLE
+    char adcStr[8];                   // buffer para el valor ADC como texto
+    sprintf(adcStr, "%d", adcValue);  // convertir entero ADC a string (ej. "2048")
 
-    // O si prefieres enviar ambos valores:
-    // sprintf(entrada, "%d,%.2f", adcValue, voltaje);
+    // Enviar notificación BLE
+    pADCCharacteristic->setValue(adcStr); // asignar valor a la característica ADC
+    pADCCharacteristic->notify();         // notificar a clientes suscritos
 
-    pCharacteristic->setValue(entrada);
-    pCharacteristic->notify();
-    Serial.print("nashe");
-
-    delay(10);
+    delay(100); // Intervalo de 100ms = 10Hz (óptimo para monitoreo en tiempo real)
   }
 
-  // disconnecting
+  // --- Manejo de re-advertising si el cliente se desconectó ---
   if (!deviceConnected && oldDeviceConnected) {
-    delay(500);
-    pServer->startAdvertising();
-    Serial.println("Reiniciando advertising");
-    oldDeviceConnected = deviceConnected;
+    delay(500);                 // breve espera para que el stack BLE estabilice
+    pServer->startAdvertising(); // volver a anunciar el servicio (aceptar nuevas conexiones)
+    Serial.println("→ Reiniciando advertising...");
+    oldDeviceConnected = deviceConnected; // sincronizar estado previo
   }
 
-  // connecting
+  // --- Actualizar estado 'oldDeviceConnected' cuando se detecta nueva conexión ---
   if (deviceConnected && !oldDeviceConnected) {
-    oldDeviceConnected = deviceConnected;
+    oldDeviceConnected = deviceConnected; // sincronizar estado previo
+    Serial.println("→ Iniciando transmisión de datos EEG...\n");
   }
 }
