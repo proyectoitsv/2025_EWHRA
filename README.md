@@ -4,7 +4,7 @@ Sistema EEG portátil de un canal para estimar el nivel de atención mediante an
 
 ---
 
-## 📖 1. ¿Qué es EWHRA?
+## 1. ¿Qué es EWHRA?
 
 **EWHRA** es un sistema portátil que capta ondas cerebrales mediante **electrodos EEG**, las filtra y amplifica a través de un circuito analógico, y luego las digitaliza con un **ESP32-C3 SuperMini**.
 
@@ -18,7 +18,7 @@ No es un equipo médico, sino un **prototipo educativo y experimental** para com
 
 ---
 
-## 🎯 2. Objetivos del Proyecto
+## 2. Objetivos del Proyecto
 
 ### Objetivo General
 Detectar en tiempo real cambios en la amplitud de una señal EEG filtrada y mostrar el estado de atención del usuario en una interfaz móvil mediante Bluetooth Low Energy (BLE).
@@ -32,7 +32,7 @@ Detectar en tiempo real cambios en la amplitud de una señal EEG filtrada y most
 
 ---
 
-## ⚙️ 3. ¿Cómo funciona EWHRA? 
+## 3. ¿Cómo funciona EWHRA? 
 
 El flujo del sistema se divide en **tres etapas principales**:
 
@@ -62,14 +62,9 @@ Esto se muestra mediante una **barra de nivel** y un **mensaje de estado**.
 
 ---
 
-## 🔌 4. Hardware del Sistema
+## 4. Hardware del Sistema
 
-### 📸 Esquemático General
-*(El siguiente diseño representa la versión final del circuito – alimentación, adquisición, filtrado, amplificación y microcontrolador)*
-
-> Alimentación → INA129P → Filtro TL084 → Amplificador TL084 → ESP32-C3 → BLE
-
-### 🧩 Componentes principales
+### Componentes principales
 
 | Componente | Función | Motivo |
 |------------|---------|--------|
@@ -80,9 +75,7 @@ Esto se muestra mediante una **barra de nivel** y un **mensaje de estado**.
 | **7805** | Regulador lineal | Alimentación estable a 5V |
 | **Batería 3.7V / 5V** | Fuente aislada | Reduce interferencias EM |
 
----
-
-## 🧠 5. Arquitectura del Sistema 
+## Arquitectura del Sistema 
 
 ```mermaid
 flowchart TD
@@ -93,3 +86,5 @@ flowchart TD
     E --> F[Bluetooth Low Energy - Servicio Único]
     F --> G[Aplicación Móvil - App Inventor]
     G --> H[Barra de Nivel + Estado Alto/Medio/Bajo]
+
+ ---
