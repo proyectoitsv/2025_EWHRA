@@ -75,7 +75,7 @@ Esto se muestra mediante una **barra de nivel** y un **mensaje de estado**.
 | **7805** | Regulador lineal | Alimentación estable a 5V |
 | **Batería 3.7V / 5V** | Fuente aislada | Reduce interferencias EM |
 
-## Arquitectura del Sistema 
+## 5. Arquitectura del Sistema (Mermaid)
 
 ```mermaid
 flowchart TD
@@ -86,5 +86,3 @@ flowchart TD
     E --> F[Bluetooth Low Energy - Servicio Único]
     F --> G[Aplicación Móvil - App Inventor]
     G --> H[Barra de Nivel + Estado Alto/Medio/Bajo]
-
- ---
