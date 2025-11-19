@@ -32,7 +32,7 @@ Detectar en tiempo real cambios en la amplitud de una señal EEG filtrada y most
 
 ---
 
-## ⚙️ 3. ¿Cómo funciona EWHRA? (Explicación simple)
+## ⚙️ 3. ¿Cómo funciona EWHRA? 
 
 El flujo del sistema se divide en **tres etapas principales**:
 
@@ -82,7 +82,7 @@ Esto se muestra mediante una **barra de nivel** y un **mensaje de estado**.
 
 ---
 
-## 🧠 5. Arquitectura del Sistema (Mermaid)
+## 🧠 5. Arquitectura del Sistema 
 
 ```mermaid
 flowchart TD
