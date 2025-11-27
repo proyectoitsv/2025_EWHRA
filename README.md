@@ -1,110 +1,104 @@
-# EWHRA - Electroencephalographic Wave Helmet to Regulating Attention
-
-## 📋 Resumen del Proyecto
-**EWHRA** es un sistema portátil diseñado para detectar **excesos de relajación mental** mediante el análisis de ondas cerebrales **beta (13–30 Hz)** usando tecnología EEG.  
-Su objetivo es proporcionar **retroalimentación inmediata** cuando se detecta una caída en el nivel de atención, mostrando el estado del usuario a través de una **interfaz gráfica**.
+# 🧠 EWHRA  
+### *Electroencephalographic Wave Helmet to Regulating Attention*  
+**Sistema EEG portátil de un canal para estimar el nivel de atención mediante análisis de amplitud en tiempo real.**
 
 ---
 
-## 🎯 Objetivos
+## 📌 1. ¿Qué es EWHRA?
 
-### Objetivo General
-Desarrollar un sistema portátil que, mediante señales EEG, detecte en tiempo real la disminución de atención y emita retroalimentación inmediata para mantener el foco o indicar que se debe detener la actividad.
+**EWHRA** es un dispositivo portátil basado en EEG que adquiere, filtra y digitaliza la actividad cerebral mediante un **sistema de un canal**.  
+La señal procesada es enviada por **Bluetooth Low Energy (BLE)** a una aplicación móvil que muestra:
 
-### Objetivos Específicos
-- Medir señales EEG con electrodos de oro según el sistema **10/20**.
-- Amplificar y filtrar las señales EEG para centrarse en ondas **beta**.
-- Implementar un **umbral configurable** para determinar el estado de atención.
-- Proveer retroalimentación sensorial inmediata al detectar relajación excesiva.
-- Transmitir el estado del usuario a una interfaz externa vía **Bluetooth**.
+- Una **barra de nivel** proporcional al valor del ADC.  
+- Un estado simplificado: **ALTO**, **MEDIO** o **BAJO**.  
+- El valor analógico procesado en tiempo real.
 
----
+Este prototipo tiene fines **educativos, experimentales y de investigación**, y sirve para comprender de manera práctica cómo se adquieren y procesan señales biológicas reales.
 
-## ⚙️ Especificaciones del Sistema
-
-### Requerimientos Funcionales
-- Detección de ondas **beta** mediante tres electrodos de Au.
-- Amplificación y filtrado en el rango 13–30 Hz.
-- Aislamiento frente a interferencias electromagnéticas.
-- Evaluación de señal contra umbral definido.
-- Retroalimentación física o visual ante relajación excesiva.
-- Transmisión de estado vía Bluetooth.
-- Alimentación con batería de 9 V.
-
-### Requerimientos No Funcionales
-- Comodidad de uso.
-- Análisis en tiempo real sin latencia perceptible.
-- Instrucciones claras para colocación del dispositivo.
-
-### Limitaciones
-- Solo **un canal EEG** (aplicaciones limitadas).
-- Evaluación no médica (solo detección de umbral).
-- Protección contra interferencias limitada a jaula de Faraday.
-- No diferencia entre tipos de distracción.
+> ⚠️ **Advertencia:** Este sistema no es un equipo médico y no debe utilizarse para diagnóstico o tratamiento.
 
 ---
 
-## 🛠️ Componentes Principales
+## 🎯 2. Objetivos del Proyecto
 
-| Componente       | Función | Cantidad |
-|------------------|---------|----------|
-| **INA129P**      | Amplificador de instrumentación para señales débiles | 1 |
-| **TL081**        | Amplificador operacional para filtro pasa banda | 1 |
-| **Arduino Nano** | Microcontrolador, ADC de 10 bits | 1 |
-| **HC-05**        | Módulo Bluetooth | 1 |
-| **Electrodos Au**| Captura de señales EEG | 3 |
-| **Batería 9V**   | Alimentación portátil | 1 |
+### **Objetivo General**
+Detectar variaciones en la amplitud de ondas beta (13–30 Hz) y representar el nivel de atención en una aplicación móvil mediante BLE.
+
+### **Objetivos Específicos**
+- Captar actividad EEG con electrodos de oro.  
+- Amplificar y filtrar la señal mediante un procesamiento analógico adecuado.  
+- Digitalizar la señal con el ADC del ESP32-C3.  
+- Transmitir la lectura por BLE en tiempo real.  
+- Representar visualmente el nivel de atención en la app mediante indicadores simples.
 
 ---
 
-## 🧩 Arquitectura del Sistema
+## ⚙️ 3. ¿Cómo funciona EWHRA?
+
+El sistema opera mediante **tres etapas principales**:
+
+---
+
+### **1) Adquisición de señal**
+- Se emplean **tres electrodos EEG** (activo, referencia y masa).  
+- La señal captada está en el rango de microvoltios, por lo que requiere amplificación precisa.
+
+---
+
+### **2) Procesamiento analógico**
+Incluye tres subetapas:
+
+1. **Amplificación diferencial — INA129P**  
+   Amplifica la señal EEG manteniendo un elevado rechazo al modo común (CMRR).
+
+2. **Filtrado pasabanda — TL084CN (13–30 Hz)**  
+   Aísla las ondas beta y reduce ruido fuera del rango de interés.
+
+3. **Ganancia final**  
+   Ajusta la amplitud total para que el ADC del ESP32-C3 pueda digitalizarla sin saturación.
+
+---
+
+### **3) Procesamiento digital**
+El **ESP32-C3 SuperMini** se encarga de:
+
+1. Digitalizar la señal mediante su **ADC de 12 bits** (0–4095).  
+2. Calcular una medida representativa (amplitud o RMS).  
+3. Enviar los valores por **BLE** a la aplicación móvil.  
+
+En la app, los valores se interpretan así:
+
+| Estado | Rango del ADC |
+|--------|----------------|
+| **ALTO** | > 66% |
+| **MEDIO** | 33–66% |
+| **BAJO** | < 33% |
+
+La app muestra una barra y un mensaje según el nivel.
+
+---
+
+## 🧩 4. Hardware del Sistema
+
+| Componente | Función | Motivo |
+|------------|---------|--------|
+| **Electrodos de oro** | Captura EEG | Buen contacto, baja impedancia |
+| **INA129P** | Amplificador de instrumentación | Alto CMRR, ideal para EEG |
+| **TL084CN** | Filtro pasabanda + ganancia | Bajo ruido y buena respuesta AC |
+| **ESP32-C3 SuperMini** | ADC + BLE + CPU | Tamaño reducido, BLE integrado |
+| **7805** | Regulación | 5V estables |
+| **Batería 3.7–5 V** | Fuente aislada | Menor interferencia electromagnética |
+
+---
+
+## 🧱 5. Arquitectura del Sistema
 
 ```mermaid
 flowchart TD
-    A[Electrodos EEG] --> B[Amplificador de Instrumentación INA129P]
-    B --> C[Filtro Pasa Banda TL081 - 13–30 Hz]
-    C --> D[Arduino Nano - Lectura ADC]
-    D --> E[Lógica de Umbral]
-    E --> F[Bluetooth HC-05]
-    F --> G[Interfaz Gráfica en PC o Móvil]
-```
----
-
-## 📅 Plan de Desarrollo
-
-### **Plan A - Etapa Analógica**
-- Preparar electrodos de Au y cableado de bajo ruido.
-- Probar INA129P y ajustar ganancia.
-- Implementar filtro pasa banda (13–30 Hz).
-- Verificar fuente partida pasiva y referencia 0 V.
-- Pruebas de banco con señal simulada.
-- Ajustar salida para ADC.
-
-### **Plan B - Etapa de Alerta**
-- Conectar circuito analógico a microcontrolador.
-- Implementar lectura continua y detección de amplitud.
-- Definir umbral (fijo o configurable).
-- Filtrar picos falsos.
-- Añadir vúmetro LED e indicador de alerta.
-- Pruebas de respuesta y ajuste de sensibilidad.
-
-### **Plan C - Firmware e Interfaz Gráfica**
-- Diseñar UI (gráfico de nivel, indicador de umbral, historial).
-- Implementar envío de datos vía Bluetooth.
-- Verificar estabilidad y velocidad de transmisión.
-
----
-
-## 🔌 Comunicación
-- **Protocolo:** Bluetooth (IEEE 802.15.1).
-- **Formato:** Señal analógica procesada → digitalización en microcontrolador → envío estado/valor a interfaz gráfica.
-
----
-
-## 🧪 Pruebas y Validación
-- Método: colocación de electrodos siguiendo protocolo 10/20 y medición con osciloscopio.
-- Problema detectado: ruido eléctrico de la fuente de continua.
-- Ajuste: uso de jaula de Faraday y alimentación por baterías para reducir interferencias.
-
----
-
+    A[Electrodos EEG] --> B[Amplificador INA129P]
+    B --> C[Filtro Pasabanda 13-30 Hz - TL084CN]
+    C --> D[Ganancia Final - TL084CN]
+    D --> E[ESP32-C3 SuperMini - ADC 12 bits]
+    E --> F[Bluetooth Low Energy]
+    F --> G[Aplicación Móvil - App Inventor]
+    G --> H[Visualización: Barra + Estado]

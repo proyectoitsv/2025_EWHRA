@@ -3,19 +3,24 @@ stateDiagram-v2
 
     Inactivo --> Iniciando : Usuario coloca el casco y enciende el sistema
 
-    Iniciando --> Monitoreando : Señales EEG estables detectadas
+    Iniciando --> Monitoreando : Señal EEG estable y ADC dentro de rango
 
-    Monitoreando --> Estado_Óptimo : Niveles alfa dentro del umbral
-    Monitoreando --> Relajación_Excesiva : Niveles alfa superan el umbral
+    Monitoreando --> Estado_Óptimo : Amplitud beta dentro del umbral
+    Monitoreando --> Relajación_Excesiva : Amplitud beta supera el umbral RMS
 
-    Estado_Óptimo --> Relajación_Excesiva : Se detecta exceso de ondas alfa
-    Relajación_Excesiva --> Estado_Óptimo : Se recupera la concentración
+    Estado_Óptimo --> Relajación_Excesiva : Se detecta exceso de relajación
+    Relajación_Excesiva --> Estado_Óptimo : Usuario recupera la atención
+
+    Relajación_Excesiva --> Alerta : Sistema envía alerta a la app
+    Alerta --> Estado_Óptimo : Usuario responde a la alerta y corrige atención
 
     Estado_Óptimo --> Fin_Sesion : Usuario finaliza sesión
     Relajación_Excesiva --> Fin_Sesion : Usuario finaliza sesión
+    Alerta --> Fin_Sesion : Usuario finaliza sesión
 
     Fin_Sesion --> [*]
 
-    %% Opcionalmente podés agregar errores o reinicios
-    Iniciando --> Error : Señal EEG no detectada
+    %% Manejo de errores
+    Iniciando --> Error : No se detecta señal EEG
+    Monitoreando --> Error : Saturación del ADC o ruido excesivo
     Error --> Inactivo : Reinicio del sistema

@@ -1,18 +1,21 @@
 sequenceDiagram
     participant Usuario
-    participant Casco_EEG
-    participant Interfaz_Grafica
-    participant Sistema_Retroalimentacion
+    participant Vincha_EEG as Vincha EEG + Electrodo
+    participant ESP32 as ESP32-C3 (ADC + RMS)
+    participant App as Interfaz Gráfica
+    participant Feedback as Sistema de Retroalimentación (App)
 
-    Usuario ->> Casco_EEG: Coloca el casco y enciende el sistema
-    Casco_EEG ->> Casco_EEG: Comienza detección de ondas cerebrales
-    Casco_EEG ->> Interfaz_Grafica: Envía datos EEG en tiempo real
-    Interfaz_Grafica ->> Interfaz_Grafica: Procesa señal alfa y calcula potencia
+    Usuario ->> Vincha_EEG: Coloca la vincha y enciende el sistema
+    Vincha_EEG ->> ESP32: Señal EEG analógica (ondas beta)
+    ESP32 ->> ESP32: Filtrado + ADC + cálculo RMS
 
-    alt Relajación dentro del umbral
-        Interfaz_Grafica ->> Usuario: Muestra estado: "Concentración adecuada"
+    ESP32 ->> App: Envía nivel beta y estado (BLE)
+    App ->> App: Actualiza indicadores en tiempo real
+
+    alt Atención dentro del umbral
+        App ->> Usuario: Muestra estado: "Atención estable"
     else Exceso de relajación detectado
-        Interfaz_Grafica ->> Sistema_Retroalimentacion: Activar alerta (vibración / LED)
-        Sistema_Retroalimentacion ->> Usuario: Alerta por relajación excesiva
-        Interfaz_Grafica ->> Usuario: Muestra estado: "Relajación excesiva detectada"
+        ESP32 ->> Feedback: Activar alerta
+        Feedback ->> Usuario: Notificación de relajación excesiva
+        App ->> Usuario: Muestra estado: "Relajación excesiva detectada"
     end
