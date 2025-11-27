@@ -3,20 +3,24 @@ config:
   layout: dagre
 ---
 flowchart TD
-    A["Inicio"] --> B["Colocación de la banda EEG"]
-    B --> C["Detección de señales cerebrales - ondas alfa"]
-    C --> D["Acondicionamiento de la señal"]
-    D --> D1["Filtrado de ruido"]
-    D1 --> D2["Amplificación - Amplificador de Instrumentación"]
-    D2 --> D3["Conversión digital - Schmitt Trigger"]
-    D3 --> E["Análisis de frecuencia y potencia de ondas alfa"]
-    E --> F{"¿Potencia alfa supera el umbral?"}
-    F -- Sí --> G["Activar retroalimentación - LED / vibrador / zumbador"]
-    F -- No --> H["Continuar sin alerta"]
-    G --> I["Mostrar estado en interfaz visual"]
+    A["Inicio"] --> B["Colocación de vincha EEG"]
+    B --> C["Detección de señales cerebrales - ondas beta"]
+    C --> D["Filtrado pasa-banda 13–30 Hz""]
+    D --> D1["Acondicionamiento de la señal"]
+    D1 --> D2["Amplificación final y limpieza de ruido"]
+    D2 --> D3["Conversión ADC - ESP32-C3 (12 bits)"]
+    D3 --> E["Cálculo RMS"]
+    E --> F{"¿Amplitud beta supera el umbral?"}
+
+    F -- Sí --> G["Activar retroalimentación: alerta en app"]
+    F -- No --> H["Continuar monitoreo con normalidad"]
+
+    G --> I["Mostrar estado y nivel en interfaz gráfica"]
     H --> I
-    I --> J{"¿Finaliza sesión de estudio?"}
+
+    I --> J{"¿Finaliza sesión?"}
     J -- No --> C
     J -- Sí --> K["Fin"]
+
     style A fill:#e3fcef,stroke:#2ecc71,stroke-width:2px
     style K fill:#fcefee,stroke:#e74c3c,stroke-width:2px
