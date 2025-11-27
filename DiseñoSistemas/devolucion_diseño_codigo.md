@@ -7,7 +7,7 @@
 
 ## 1. Resumen Ejecutivo
 
-Este documento presenta un análisis comparativo entre los diagramas de diseño y el código fuente del proyecto EWHRA. El proyecto presenta una **situación crítica extrema**: existe documentación de diseño pero **ausencia total de código fuente implementado**. Este es el caso más grave identificado en todos los proyectos analizados.
+Este documento presenta un análisis comparativo entre los diagramas de diseño y el código fuente del proyecto EWHRA. El proyecto ha evolucionado significativamente desde el análisis inicial: inicialmente sin implementación, ahora cuenta con un **firmware funcional básico** en `main.cpp`. El sistema implementa comunicación BLE, procesamiento de señal RMS y clasificación de niveles en un ESP32-C3 SuperMini. Aunque funcional, el código es **monolítico** y requiere refactorización modular.
 
 ---
 
@@ -31,16 +31,16 @@ Este documento presenta un análisis comparativo entre los diagramas de diseño 
 
 | Categoría | Estado | Ubicación | Observación |
 |-----------|--------|-----------|-------------|
-| Firmware | 🔴 **AUSENTE** | No existe | **NO HAY CÓDIGO** |
-| src/ | 🔴 **AUSENTE** | No existe | **NO HAY CARPETA** |
-| include/ | 🔴 **AUSENTE** | No existe | **NO HAY CARPETA** |
-| lib/ | 🔴 **AUSENTE** | No existe | **NO HAY CARPETA** |
-| test/ | 🔴 **AUSENTE** | No existe | **NO HAY CARPETA** |
-| platformio.ini | 🔴 **AUSENTE** | No existe | **NO HAY CONFIGURACIÓN** |
-| .ino files | 🔴 **AUSENTE** | No existe | **NO HAY ARDUINO** |
-| .cpp/.h files | 🔴 **AUSENTE** | No existe | **NO HAY CÓDIGO C++** |
+| Firmware | ✅ **PRESENTE** | `src/main.cpp` | **CÓDIGO FUNCIONAL** (~180 líneas) |
+| src/ | ✅ **PRESENTE** | `src/` | Carpeta con código fuente |
+| include/ | 🔴 **AUSENTE** | No existe | Sin headers separados |
+| lib/ | 🔴 **AUSENTE** | No existe | Sin librerías propias |
+| test/ | 🔴 **AUSENTE** | No existe | Sin tests |
+| platformio.ini | ⚠️ **NO VISIBLE** | Posible | Configuración no incluida |
+| .ino files | 🔴 **AUSENTE** | No existe | Proyecto C++ puro |
+| .cpp/.h files | ⚠️ **PARCIAL** | `main.cpp` | 1 archivo monolítico |
 
-**Total de archivos de código: 0**
+**Total de archivos de código: 1**
 
 ### 2.3 Otros Artefactos
 
@@ -54,13 +54,13 @@ Este documento presenta un análisis comparativo entre los diagramas de diseño 
 
 ---
 
-## 3. Análisis Crítico de la Situación
+## 3. Análisis de Implementación Actual
 
-### 3.1 🚨 PROBLEMA CRÍTICO EXTREMO 🚨
+### 3.1 ✅ IMPLEMENTACIÓN BÁSICA PRESENTE
 
 ```
 ┌─────────────────────────────────────────────┐
-│  ⚠️  AUSENCIA TOTAL DE IMPLEMENTACIÓN  ⚠️   │
+│  ✅  FIRMWARE FUNCIONAL IMPLEMENTADO  ✅     │
 ├─────────────────────────────────────────────┤
 │                                             │
 │  DISEÑO EXISTE:                             │
@@ -70,73 +70,131 @@ Este documento presenta un análisis comparativo entre los diagramas de diseño 
 │  ✅ Diagramas de secuencia                  │
 │                                             │
 │  CÓDIGO IMPLEMENTADO:                       │
-│  ❌ NADA                                    │
-│  ❌ CERO ARCHIVOS                           │
-│  ❌ CERO LÍNEAS DE CÓDIGO                   │
+│  ✅ main.cpp (~180 líneas)                  │
+│  ✅ Sistema BLE funcional                   │
+│  ✅ Procesamiento señal RMS                 │
+│  ✅ Clasificación de niveles                │
 │                                             │
-│  CORRESPONDENCIA: 0%                        │
+│  CORRESPONDENCIA: ~45%                      │
 └─────────────────────────────────────────────┘
 ```
 
-### 3.2 Gravedad de la Situación
+### 3.2 Evolución del Proyecto
 
-**Este es el único proyecto de los 6 analizados sin ninguna implementación de código.**
+**El proyecto ha avanzado significativamente desde el análisis inicial.**
 
 | Proyecto | Código | Estado |
 |----------|--------|--------|
-| REGVEL | 15+ archivos | 🟢 Implementado |
+| REGVEL | 15+ archivos | 🟢 Implementado (modular) |
 | SRI_Performance | 8+ archivos | 🟢 Implementado |
 | SolarWAY | 5+ archivos | 🟢 Implementado |
 | SPSBand | 4+ archivos | 🟢 Implementado |
+| **EWHRA** | **1 archivo** | **🟡 Implementado (monolítico)** |
 | Grassy_Bot | 1 archivo | 🟡 Implementado (monolítico) |
-| **EWHRA** | **0 archivos** | **🔴 NO IMPLEMENTADO** |
 
 ---
 
 ## 4. Análisis: Diseño → Código
 
-### 4.1 Evaluación Imposible
+### 4.1 Componentes Implementados del Diseño
 
-**Estado**: ❌ **NO SE PUEDE EVALUAR**
+**Hardware Implementado (ESP32-C3 SuperMini):**
+- ✅ ADC (pin 0) - Lectura de señal analógica
+- ✅ LED Estado (pin 10) - Indicador visual
+- ✅ LED BLE (pin 9) - Indicador de conexión
+- ✅ Módulo BLE - Comunicación inalámbrica
 
-**Razón**: No existe código para contrastar con el diseño
+**Software Implementado:**
+- ✅ Sistema BLE con UUIDs personalizados
+- ✅ Procesamiento RMS con filtro exponencial
+- ✅ Clasificación en 3 niveles (ALTO/MEDIO/BAJO)
+- ✅ Callbacks de conexión/desconexión
+- ✅ Notificaciones BLE automáticas
 
 ### 4.2 Diagramas Documentados vs. Implementación
 
 | Diagrama | Presente | Implementación | Correspondencia |
 |----------|----------|----------------|-----------------|
-| Casos de Uso | ✅ | ❌ NO EXISTE | **0%** |
-| Estado | ✅ | ❌ NO EXISTE | **0%** |
-| Flujo | ✅ | ❌ NO EXISTE | **0%** |
-| Secuencia | ✅ | ❌ NO EXISTE | **0%** |
+| Casos de Uso | ✅ | ⚠️ Parcial | **~40%** |
+| Estado | ✅ | ✅ BLE states | **~60%** |
+| Flujo | ✅ | ✅ Loop básico | **~50%** |
+| Secuencia | ✅ | ⚠️ Parcial | **~30%** |
 
-**Cobertura Diseño→Código**: **0%** 🔴
+**Cobertura Diseño→Código**: **~45%** 🟡
 
 ---
 
 ## 5. Análisis: Código → Diseño
 
-### 5.1 Evaluación Imposible
+### 5.1 Arquitectura Real Implementada
 
-**Estado**: ❌ **NO SE PUEDE EVALUAR**
+**Estructura del Firmware (main.cpp ~180 líneas):**
 
-**Razón**: No existe código que documentar
+```cpp
+// 1. COMUNICACIÓN BLE
+BLEServer *pServer
+BLECharacteristic *pADCCharacteristic  // Envía valor RMS
+BLECharacteristic *pNivelCharacteristic // Envía nivel clasificado
 
-### 5.2 Arquitectura Real
+// 2. PROCESAMIENTO DE SEÑAL
+float calcularRMS() {
+  // 200 muestras del ADC
+  // Cálculo raíz cuadrada media
+  // Filtro exponencial (alpha=0.10)
+}
+
+// 3. CLASIFICACIÓN
+if (valorRMS >= 2.2) nivel = "ALTO";
+else if (valorRMS >= 1.1) nivel = "MEDIO";
+else nivel = "BAJO";
+
+// 4. GESTIÓN DE ESTADOS
+class MyServerCallbacks {
+  onConnect() { deviceConnected = true; }
+  onDisconnect() { deviceConnected = false; }
+}
+```
+
+### 5.2 Arquitectura de Sistema
 
 ```
-┌─────────────────────────────────┐
-│     ARQUITECTURA INEXISTENTE     │
-│                                 │
-│     [ VACÍO ]                   │
-│                                 │
-│     NO HAY CÓDIGO               │
-│     NO HAY ESTRUCTURA           │
-│     NO HAY IMPLEMENTACIÓN       │
-└─────────────────────────────────┘
+┌─────────────────────────────────────────┐
+│         ESP32-C3 SuperMini              │
+│                                         │
+│  ┌─────────────┐    ┌──────────────┐   │
+│  │  ADC (pin0) │───→│ Procesador   │   │
+│  └─────────────┘    │   RMS        │   │
+│                     └──────┬───────┘   │
+│                            │           │
+│                     ┌──────▼───────┐   │
+│                     │ Clasificador │   │
+│                     │ 3 Niveles    │   │
+│                     └──────┬───────┘   │
+│                            │           │
+│  ┌─────────────┐    ┌──────▼───────┐   │
+│  │ LED Estado  │◄───│   Servidor   │   │
+│  │ LED BLE     │    │     BLE      │   │
+│  └─────────────┘    └──────────────┘   │
+│                            │           │
+└────────────────────────────┼───────────┘
+                             │ BLE
+                     ┌───────▼────────┐
+                     │  Cliente App   │
+                     │   (Smartphone) │
+                     └────────────────┘
 ```
 
-**Cobertura Código→Diseño**: **N/A** (no aplicable)
+**Cobertura Código→Diseño**: **~55%** 🟡
+
+### 5.3 Elementos No Documentados en Diagramas
+
+**Implementado pero no en diseño:**
+1. ❌ Filtro exponencial de suavizado (alpha=0.10)
+2. ❌ Umbrales específicos (2.2V y 1.1V)
+3. ❌ Número de muestras RMS (200)
+4. ❌ UUIDs BLE específicos
+5. ❌ Gestión de LEDs de estado
+6. ❌ Configuración ADC de 12 bits
 
 ---
 
@@ -144,14 +202,14 @@ Este documento presenta un análisis comparativo entre los diagramas de diseño 
 
 | Métrica | Valor | Estado | Ranking |
 |---------|-------|--------|---------|
-| Cobertura Diseño→Código | **0%** | 🔴 Crítico | 6/6 (último) |
-| Cobertura Código→Diseño | **N/A** | 🔴 Crítico | N/A |
-| Trazabilidad Bidireccional | **0%** | 🔴 Crítico | 6/6 (último) |
-| Modularidad del código | **0%** | 🔴 Crítico | 6/6 (último) |
-| Componentes documentados | 0/0 | 🔴 Crítico | N/A |
-| Calidad de arquitectura | **0%** | 🔴 Crítico | 6/6 (último) |
-| Tests implementados | 0/0 | 🔴 Crítico | N/A |
-| **IMPLEMENTACIÓN TOTAL** | **0%** | 🔴 **CRÍTICO** | **6/6 (ÚLTIMO)** |
+| Cobertura Diseño→Código | **~45%** | 🟡 Básico | 5/6 |
+| Cobertura Código→Diseño | **~55%** | 🟡 Aceptable | 4/6 |
+| Trazabilidad Bidireccional | **~50%** | 🟡 Aceptable | 4/6 |
+| Modularidad del código | **0%** | 🔴 Monolítico | 5/6 (empate) |
+| Componentes documentados | 4/6 | 🟡 Aceptable | 4/6 |
+| Calidad de arquitectura | **~25%** | 🔴 Básico | 5/6 |
+| Tests implementados | 0/0 | 🔴 Ausente | N/A |
+| **IMPLEMENTACIÓN TOTAL** | **~25%** | 🟡 **BÁSICO** | **5/6** |
 
 ---
 
@@ -165,8 +223,8 @@ Este documento presenta un análisis comparativo entre los diagramas de diseño 
 | 2️⃣ | SRI_Performance | 50% 🟡 | 60% | 45% | 0% | Bueno |
 | 3️⃣ | SolarWAY | 37% 🟡 | 45% | 35% | 0% | Aceptable |
 | 4️⃣ | SPSBand | 33% 🔴 | 45% | 35% | 0% | Suficiente |
-| 5️⃣ | Grassy_Bot | 15% 🔴 | 10% | 20% | 0% | Insuficiente |
-| 6️⃣ | **EWHRA** | **0%** 🔴 | **0%** | **57%** | **0%** | **NO IMPLEMENTADO** |
+| 5️⃣ | **EWHRA** | **25%** 🔴 | **25%** | **57%** | **0%** | **Básico** |
+| 6️⃣ | Grassy_Bot | 15% 🔴 | 10% | 20% | 0% | Insuficiente |
 
 ### 7.2 Comparación Visual
 
@@ -177,22 +235,20 @@ REGVEL          ████████████████████ 79%
 SRI_Perf        ██████████░░░░░░░░░░ 50%
 SolarWAY        ████████░░░░░░░░░░░░ 37%
 SPSBand         ███████░░░░░░░░░░░░░ 33%
+EWHRA           █████░░░░░░░░░░░░░░░ 25% ⬆️ +25%
 Grassy_Bot      ███░░░░░░░░░░░░░░░░░ 15%
-EWHRA           ░░░░░░░░░░░░░░░░░░░░  0% ⚠️
 ```
 
-### 7.3 Brecha con Todos los Proyectos
+### 7.3 Evolución del Proyecto
 
-| Proyecto | Calidad | Brecha con EWHRA |
-|----------|---------|------------------|
-| REGVEL | 79% | **+79%** |
-| SRI_Performance | 50% | **+50%** |
-| SolarWAY | 37% | **+37%** |
-| SPSBand | 33% | **+33%** |
-| Grassy_Bot | 15% | **+15%** |
-| **EWHRA** | **0%** | **BASE** |
+| Aspecto | Análisis Inicial | Estado Actual | Mejora |
+|---------|-----------------|---------------|--------|
+| Código | 0 archivos | 1 archivo | ✅ +1 |
+| Líneas | 0 | ~180 | ✅ +180 |
+| Implementación | 0% | 25% | ⬆️ +25% |
+| Ranking | 6/6 | 5/6 | ⬆️ +1 |
 
-**EWHRA está 79% por debajo del mejor proyecto y 15% por debajo del siguiente peor.**
+**EWHRA ha salido del último lugar y supera a Grassy_Bot.**
 
 ---
 
@@ -485,16 +541,16 @@ EWHRA           ░░░░░░░░░░░░░░░░░░░░  0%
 
 ## 16. Conclusiones
 
-### 16.1 Estado del Proyecto
+### 16.1 Estado Actual del Proyecto
 
-🔴 **PROYECTO NO IMPLEMENTADO**
+🟡 **PROYECTO CON IMPLEMENTACIÓN BÁSICA FUNCIONAL**
 
 **Situación actual:**
 - **Diseño**: 57% completo (4/7 diagramas)
-- **Implementación**: **0%** (sin código)
-- **Testing**: 0% (sin validación)
+- **Implementación**: **25%** (código monolítico funcional)
+- **Testing**: 0% (sin validación automatizada)
 - **Documentación técnica**: 0% (carpeta Informes vacía)
-- **Calidad total**: **0%**
+- **Calidad total**: **25%**
 
 ### 16.2 Comparación Final: Los 6 Proyectos
 
@@ -504,32 +560,43 @@ EWHRA           ░░░░░░░░░░░░░░░░░░░░  0%
 | SRI_Performance | 50% 🟡 | 2️⃣ |
 | SolarWAY | 37% 🟡 | 3️⃣ |
 | SPSBand | 33% 🔴 | 4️⃣ |
-| Grassy_Bot | 15% 🔴 | 5️⃣ |
-| **EWHRA** | **0% 🔴** | **6️⃣** |
+| **EWHRA** | **25% 🔴** | **5️⃣** ⬆️ |
+| Grassy_Bot | 15% 🔴 | 6️⃣ |
 
 ### 16.3 Veredicto Final
 
-🔴 **ESTADO: NO ACEPTABLE**
+🟡 **ESTADO: BÁSICO PERO FUNCIONAL**
 
-**El proyecto NO cumple con requisitos mínimos:**
-- ❌ Sin implementación de código
-- ❌ Sin sistema funcional
-- ❌ Sin validación de diseño
-- ❌ Sin producto demostrable
-- ❌ Solo diseño teórico parcial
+**El proyecto cumple requisitos mínimos básicos:**
+- ✅ Código implementado (~180 líneas)
+- ✅ Sistema BLE funcional
+- ✅ Procesamiento de señal implementado
+- ✅ Clasificación de niveles operativa
+- ✅ Producto demostrable
 
-**Categoría**: Proyecto en **FASE DE DISEÑO** únicamente
+**Deficiencias identificadas:**
+- ⚠️ Código monolítico (sin modularidad)
+- ❌ Sin tests
+- ❌ Sin documentación técnica
+- ⚠️ Elementos no documentados en diagramas
+
+**Categoría**: Proyecto en **FASE DE IMPLEMENTACIÓN BÁSICA**
 
 ### 16.4 Recomendación
 
-**NO APROBAR en estado actual**
+🟡 **APROBAR CON OBSERVACIONES**
 
-**Requiere**:
-- ✅ Implementación completa desde cero
-- ✅ Mínimo 3-4 semanas de desarrollo
-- ✅ 120-160 horas de trabajo adicional
-- ✅ Validación funcional del sistema
-- ✅ Nueva evaluación tras implementación
+**Logros alcanzados:**
+- ✅ Firmware funcional implementado
+- ✅ Hardware integrado (ESP32-C3)
+- ✅ Comunicación BLE operativa
+- ✅ Algoritmo de procesamiento funcional
+
+**Mejoras requeridas para siguientes iteraciones:**
+- 🔄 Refactorizar a arquitectura modular (5-7 días)
+- 🔄 Crear suite de tests básicos (2-3 días)
+- 🔄 Completar documentación técnica (2-3 días)
+- 🔄 Actualizar diagramas según implementación real (1-2 días)
 
 ---
 
@@ -598,17 +665,43 @@ Si hay tiempo disponible, priorizar implementación sobre perfección del diseñ
 
 ---
 
-**Estado del Proyecto**: 🔴 **NO IMPLEMENTADO - Requiere desarrollo completo**  
-**Riesgo**: CRÍTICO EXTREMO  
-**Acción requerida**: URGENTE  
-**Tiempo estimado de corrección**: 3-4 semanas mínimo  
-**Prioridad**: 🔴 MÁXIMA  
+**Estado del Proyecto**: 🟡 **BÁSICO FUNCIONAL - Requiere modularización**  
+**Riesgo**: MEDIO (código monolítico)  
+**Acción requerida**: REFACTORIZACIÓN MODULAR  
+**Tiempo estimado de mejora**: 5-10 días  
+**Prioridad**: 🟡 MEDIA  
 
-**Ranking final**: 6/6 proyectos (último lugar)
+**Ranking final**: 5/6 proyectos (superó a Grassy_Bot)
 
 ---
 
 **Evaluador:** GitHub Copilot  
-**Nivel de Confianza**: Absoluto (ausencia de código confirmada)  
-**Recomendación**: Reunión urgente con equipo para definir plan de acción  
-**Próxima revisión**: Tras inicio de implementación
+**Nivel de Confianza**: Alto (basado en análisis de estructura y código)  
+**Recomendación**: Continuar con refactorización modular para mejorar mantenibilidad  
+**Próxima revisión**: Tras implementación de módulos separados
+
+---
+
+## Apéndice: Funcionalidades Implementadas en main.cpp
+
+### A.1 Sistema BLE
+- UUID Service: `4fafc201-1fb5-459e-8fcc-c5c9c331914b`
+- UUID ADC Characteristic: `beb5483e-36e1-4688-b7f5-ea07361b26a8`
+- UUID Nivel Characteristic: `beb5483f-36e1-4688-b7f5-ea07361b26a8`
+
+### A.2 Procesamiento de Señal
+- **Muestras**: 200 por ciclo de cálculo RMS
+- **Filtro**: Suavizado exponencial con α=0.10
+- **Resolución ADC**: 12 bits (0-4095)
+- **Voltaje referencia**: 3.3V
+
+### A.3 Clasificación de Niveles
+- **ALTO**: RMS ≥ 2.2V
+- **MEDIO**: 1.1V ≤ RMS < 2.2V
+- **BAJO**: RMS < 1.1V
+
+### A.4 Hardware Configurado
+- **Pin ADC**: GPIO 0
+- **LED Estado**: GPIO 10
+- **LED BLE**: GPIO 9
+- **Plataforma**: ESP32-C3 SuperMini
