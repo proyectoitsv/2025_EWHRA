@@ -1,88 +1,89 @@
-# 🧠 EWHRA  
-### Electroencephalographic Wave Helmet to Regulating Attention  
-Sistema EEG portátil de un canal para estimar el nivel de atención mediante análisis simple de amplitud de señal.
+🧠 EWHRA
+Electroencephalographic Wave Helmet to Regulating Attention
 
----
+Sistema EEG portátil de un canal para estimar el nivel de atención mediante análisis de amplitud en tiempo real.
 
-## 1. ¿Qué es EWHRA?
+📌 1. ¿Qué es EWHRA?
 
-**EWHRA** es un sistema portátil que capta ondas cerebrales mediante **electrodos EEG**, las filtra y amplifica a través de un circuito analógico, y luego las digitaliza con un **ESP32-C3 SuperMini**.
+EWHRA es un dispositivo portátil basado en EEG que adquiere, filtra y digitaliza la actividad cerebral mediante un sistema de un canal. La señal procesada es enviada por BLE a una aplicación móvil que muestra:
 
-El objetivo es que la señal resultante pueda utilizarse para **estimar el nivel de atención del usuario**, mostrando en una aplicación móvil indicadores visuales simples:
+Una barra de nivel proporcional al valor del ADC.
 
-- Una **barra de nivel** basada en el valor del ADC.  
-- Un estado categorizado como: **ALTO**, **MEDIO**, **BAJO**.  
-- Conexión BLE con el dispositivo para ver el valor en tiempo real.
+Un estado simplificado: ALTO, MEDIO o BAJO.
 
-No es un equipo médico, sino un **prototipo educativo y experimental** para comprender cómo se adquiere y procesa una señal EEG real.
+El valor analógico procesado en tiempo real.
 
----
+Este prototipo tiene fines educativos, experimentales y de investigación, y busca explorar la adquisición de señales biológicas reales mediante hardware accesible y procesamiento básico.
 
-## 2. Objetivos del Proyecto
+⚠️ No es un dispositivo médico, ni está diseñado para diagnóstico o tratamiento.
 
-### Objetivo General
-Detectar en tiempo real cambios en la amplitud de una señal EEG filtrada y mostrar el estado de atención del usuario en una interfaz móvil mediante Bluetooth Low Energy (BLE).
+🎯 2. Objetivos del Proyecto
+Objetivo General
 
-### Objetivos Específicos
-- Captar señales EEG mediante electrodos de oro.  
-- Amplificar y filtrar la señal para aislar el rango 13–30 Hz (ondas beta).  
-- Digitalizar la señal con el ADC del ESP32-C3.  
-- Transmitir el valor de la señal vía BLE.  
-- Representar visualmente el nivel en una app mediante barras y mensajes.  
+Detectar variaciones en la amplitud de ondas beta (13–30 Hz) y representar un nivel de atención en una app móvil conectada mediante Bluetooth Low Energy.
 
----
+Objetivos Específicos
 
-## 3. ¿Cómo funciona EWHRA? 
+Captar actividad EEG con electrodos de oro.
 
-El flujo del sistema se divide en **tres etapas principales**:
+Amplificar y filtrar la señal mediante un sistema analógico adecuado para EEG.
 
-### **1) Adquisición de señal**
-- Tres electrodos capturan la actividad eléctrica del cuero cabelludo.  
-- Estas señales son muy débiles (microvoltios) y requieren amplificación especializada.
+Digitalizar la señal con el ADC del ESP32-C3.
 
-### **2) Procesamiento analógico**
-- Un **amplificador de instrumentación INA129P** eleva la señal EEG manteniendo relación precisa entre electrodos.  
-- Un **filtro pasa banda activo (13–30 Hz)** atenúa todo lo que no sean ondas beta.  
-- Una etapa de amplificación final ajusta la amplitud para que el ADC pueda leerla.
+Transmitir la lectura por BLE.
 
-### **3) Procesamiento digital**
-- El **ESP32-C3** toma muestras de la señal mediante su ADC.  
-- El valor analógico se convierte en un número digital de **0 a 4095** (resolución de 12 bits).  
-- Ese valor se envía a una app por **Bluetooth Low Energy (BLE)**.
+Mostrar el nivel de atención en una interfaz gráfica simple e intuitiva.
 
-La app interpreta este número como:
+⚙️ 3. ¿Cómo funciona EWHRA?
 
-| Estado | Rango (porcentaje del ADC) |
-|--------|-----------------------------|
-| **ALTO** | > 66% |
-| **MEDIO** | 33–66% |
-| **BAJO** | < 33% |
+El funcionamiento se organiza en tres etapas principales:
 
-Esto se muestra mediante una **barra de nivel** y un **mensaje de estado**.
+1) Adquisición de señal
 
----
+Se utilizan tres electrodos (activo, referencia y masa).
 
-## 4. Hardware del Sistema
+La señal EEG se encuentra en el rango de microvoltios, por lo que requiere amplificación precisa.
 
-### Componentes principales
+2) Procesamiento analógico
 
-| Componente | Función | Motivo |
-|------------|---------|--------|
-| **Electrodos Au EEG** | Detección de señal cerebral | Buena conductividad y bajo ruido |
-| **INA129P** | Amplificador de instrumentación | Alta precisión, ideal para EEG |
-| **TL084CN** | Filtro y amplificación activa | Configurable para 13–30 Hz |
-| **ESP32-C3 SuperMini** | ADC + BLE + procesamiento | Tamaño reducido y BLE integrado |
-| **7805** | Regulador lineal | Alimentación estable a 5V |
-| **Batería 3.7V / 5V** | Fuente aislada | Reduce interferencias EM |
+INA129P: amplifica diferencialmente la señal captada.
 
-## 5. Arquitectura del Sistema (Mermaid)
+Filtro pasabanda 13–30 Hz (TL084CN): elimina componentes fuera del rango beta.
 
-```mermaid
+Etapa de ganancia final: ajusta la amplitud para el ADC del ESP32-C3.
+
+Este bloque se encarga de entregar una señal limpia, estable y dentro del rango permitido.
+
+3) Procesamiento digital
+
+El ESP32-C3:
+
+Toma muestras mediante su ADC de 12 bits (0–4095).
+
+Calcula un valor representativo (ej. RMS o amplitud directa).
+
+Envía los datos por BLE a la aplicación móvil.
+
+En la app, el valor se interpreta como:
+
+Estado	Rango del ADC
+ALTO	> 66%
+MEDIO	33–66%
+BAJO	< 33%
+🧩 4. Hardware del Sistema
+Componente	Rol en el sistema	Motivo de uso
+Electrodos Au	Captura de señal EEG	Baja impedancia, buen contacto
+INA129P	Amplificación diferencial	Alta precisión y CMRR ideal para EEG
+TL084CN	Filtro pasabanda + ganancia	Amplificadores operacionales de bajo ruido
+ESP32-C3 SuperMini	ADC + BLE + procesamiento	Tamaño reducido y conectividad integrada
+7805	Regulación	Alimentación estable para el módulo
+Batería 3.7–5 V	Fuente aislada	Reduce interferencias electromagnéticas
+🧱 5. Arquitectura del Sistema
 flowchart TD
-    A[Electrodos EEG] --> B[Amplificador de Instrumentación INA129P]
+    A[Electrodos EEG] --> B[Amplificador INA129P]
     B --> C[Filtro Pasabanda 13-30 Hz - TL084CN]
-    C --> D[Amplificador Final - TL084CN]
+    C --> D[Ganancia Final - TL084CN]
     D --> E[ESP32-C3 SuperMini - ADC 12 bits]
-    E --> F[Bluetooth Low Energy - Servicio Único]
+    E --> F[Bluetooth Low Energy]
     F --> G[Aplicación Móvil - App Inventor]
-    G --> H[Barra de Nivel + Estado Alto/Medio/Bajo]
+    G --> H[Visualización: Barra + Estado]
