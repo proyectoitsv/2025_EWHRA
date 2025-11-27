@@ -24,8 +24,8 @@ bool oldDeviceConnected = false; // detecta cambios de estado de conexión
 // --- Pines ---
 
 #define SIGNAL_PIN 0 // pin del ADC
-#define ledEstado 10 // indicador de actividad general
-#define ledBLE 9 // indicador de conexión BLE
+#define ledEstado 1 // indicador de actividad general
+#define ledBLE 2 // indicador de conexión BLE
 
 // --- UUIDs BLE ---
 
