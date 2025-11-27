@@ -1,16 +1,32 @@
 flowchart LR
-    A[Inicia sesión] --> B[Coloca dispositivo]
-    B --> C[Realiza tarea configurada]
-    C --> D[Recibe alerta]
-    D --> E[Responde a alerta]
-    E --> F[Finaliza sesión]
+    A[Inicia sesión en la app EWHRA] --> B[Coloca la vincha EEG]
+    B --> C[Conecta el dispositivo vía BLE]
+    C --> D[Realiza la actividad]
+    D --> E[El sistema monitorea ondas beta]
+    E --> F{Detecta exceso de relajación?}
     
+    F -->|Sí| G[App muestra alerta visual]
+    G --> H[Usuario responde a la alerta]
+    H --> I[Se reanuda la actividad]
+
+    F -->|No| I
+
+    I --> J[Finaliza sesión]
+
     %% Agrupación del actor: Usuario
     subgraph USUARIO
         A
         B
         C
         D
+        H
+        I
+        J
+    end
+
+    %% Agrupación del sistema EWHRA
+    subgraph SISTEMA_EWHRA
         E
         F
+        G
     end
