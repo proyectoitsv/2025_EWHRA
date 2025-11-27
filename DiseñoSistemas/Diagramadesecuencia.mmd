@@ -3,7 +3,7 @@ sequenceDiagram
     participant Vincha_EEG as Vincha EEG + Electrodo
     participant ESP32 as ESP32-C3 (ADC + RMS)
     participant App as Interfaz Gráfica
-    participant Feedback as Sistema de Retroalimentación (LED/App)
+    participant Feedback as Sistema de Retroalimentación (App)
 
     Usuario ->> Vincha_EEG: Coloca la vincha y enciende el sistema
     Vincha_EEG ->> ESP32: Señal EEG analógica (ondas beta)
