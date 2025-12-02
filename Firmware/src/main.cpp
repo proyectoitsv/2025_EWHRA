@@ -52,10 +52,12 @@ const int   ADC_MAX_COUNT = 4095;
 class MyServerCallbacks : public BLEServerCallbacks {
   void onConnect(BLEServer *pServer) {
     deviceConnected = true;
+    digitalWrite(BLE, HIGH);
     Serial.println("✓ Cliente conectado");
   }
   void onDisconnect(BLEServer *pServer) {
     deviceConnected = false;
+    digitalWrite(BLE, LOW);
     Serial.println("✗ Cliente desconectado");
   }
 };
@@ -145,16 +147,8 @@ void loop() {
 
   digitalWrite(ledEstado, HIGH); // indicador de actividad
 
-  // LED BLE parpadea cuando NO hay conexión
-  if (!deviceConnected) {
-    digitalWrite(ledBLE, HIGH); delay(200);
-    digitalWrite(ledBLE, LOW);  delay(200);
-  }
-
   // Si hay conexión BLE, mandar datos
   if (deviceConnected) {
-
-    digitalWrite(ledBLE, LOW);  // LED estable conectado
 
     float valorRMS = calcularRMS();  // obtiene RMS filtrado
 
