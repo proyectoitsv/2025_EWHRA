@@ -1,6 +1,6 @@
 // =====================
 //   EWHRA
-//   ESP32-C3 SuperMini 
+//   ESP32-C3 SuperMini
 // =====================
 
 // --- Librerías BLE ---
@@ -12,38 +12,38 @@
 
 // --- Objetos BLE globales ---
 
-BLEServer *pServer = NULL; // servidor BLE del ESP32
-BLECharacteristic *pADCCharacteristic = NULL; // envía el RMS suavizado (en mV por bytes)
-BLECharacteristic *pNivelCharacteristic = NULL; // envía el nivel ALTO / MEDIO / BAJO
+BLEServer *pServer = NULL;                       // servidor BLE del ESP32
+BLECharacteristic *pADCCharacteristic = NULL;    // envía el RMS suavizado (en mV por bytes)
+BLECharacteristic *pNivelCharacteristic = NULL;  // envía el nivel ALTO / MEDIO / BAJO
 
 // --- Estados de conexión BLE ---
 
-bool deviceConnected = false; // indica si hay un dispositivo conectado
-bool oldDeviceConnected = false; // detecta cambios de estado de conexión
+bool deviceConnected = false;     // indica si hay un dispositivo conectado
+bool oldDeviceConnected = false;  // detecta cambios de estado de conexión
 
 // --- Pines ---
 
-#define SIGNAL_PIN 0 // pin del ADC
-#define ledEstado 1 // indicador de actividad general
-#define ledBLE 2 // indicador de conexión BLE
+#define SIGNAL_PIN 0  // pin del ADC
+#define ledEstado 1   // indicador de actividad general
+#define ledBLE 2      // indicador de conexión BLE
 
 // --- UUIDs BLE ---
 
 // Identifican el servicio y las características
-#define SERVICE_UUID              "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"
-#define ADC_CHARACTERISTIC_UUID   "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
+#define SERVICE_UUID "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"
+#define ADC_CHARACTERISTIC_UUID "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
 #define NIVEL_CHARACTERISTIC_UUID "6E400004-B5A3-F393-E0A9-E50E24DCCA9E"
 
 // --- Parámetros de procesamiento ---
 
-const int muestras = 200; // cantidad de lecturas por cálculo RMS
-float rmsSuave = 0.0; // valor RMS filtrado
-float alpha = 0.10; // nivel de suavizado (más chico = más lento)
+const int muestras = 200;  // cantidad de lecturas por cálculo RMS
+float rmsSuave = 0.0;      // valor RMS filtrado
+float alpha = 0.10;        // nivel de suavizado (más chico = más lento)
 
 // Valores máximos del ADC del ESP32-C3
 
 const float ADC_MAX_VOLT = 3.3;
-const int   ADC_MAX_COUNT = 4095;
+const int ADC_MAX_COUNT = 4095;
 
 // =================================================
 //   CALLBACKS BLE
@@ -52,12 +52,10 @@ const int   ADC_MAX_COUNT = 4095;
 class MyServerCallbacks : public BLEServerCallbacks {
   void onConnect(BLEServer *pServer) {
     deviceConnected = true;
-    digitalWrite(BLE, HIGH);
     Serial.println("✓ Cliente conectado");
   }
   void onDisconnect(BLEServer *pServer) {
     deviceConnected = false;
-    digitalWrite(BLE, LOW);
     Serial.println("✗ Cliente desconectado");
   }
 };
@@ -88,17 +86,15 @@ void setup() {
   // Característica del RMS (en bytes)
   pADCCharacteristic = pService->createCharacteristic(
     ADC_CHARACTERISTIC_UUID,
-    BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY
-  );
+    BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY);
   pADCCharacteristic->addDescriptor(new BLE2902());
 
   // Característica del nivel en texto
   pNivelCharacteristic = pService->createCharacteristic(
     NIVEL_CHARACTERISTIC_UUID,
-    BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY
-  );
+    BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY);
   pNivelCharacteristic->addDescriptor(new BLE2902());
-  pNivelCharacteristic->setValue("BAJO"); // valor inicial
+  pNivelCharacteristic->setValue("BAJO");  // valor inicial
 
   pService->start();
 
@@ -117,14 +113,14 @@ void setup() {
 // =========================================
 float calcularRMS() {
 
-  uint64_t sumaCuadrados = 0; // 64 bits evita saturarse
+  uint64_t sumaCuadrados = 0;  // 64 bits evita saturarse
 
   for (int i = 0; i < muestras; i++) {
-    int raw = analogRead(SIGNAL_PIN); // lectura ADC
+    int raw = analogRead(SIGNAL_PIN);  // lectura ADC
 
     sumaCuadrados += (uint64_t)raw * (uint64_t)raw;
 
-    delayMicroseconds(200); // controla frecuencia de muestreo
+    delayMicroseconds(200);  // controla frecuencia de muestreo
   }
 
   // RMS del ADC sin convertir (0–4095)
@@ -133,7 +129,7 @@ float calcularRMS() {
   // Conversión a voltaje real (0–3.3V)
   float voltRMS = (rmsRaw / ADC_MAX_COUNT) * ADC_MAX_VOLT;
 
-  // Filtro exponencial 
+  // Filtro exponencial
   rmsSuave = (alpha * voltRMS) + (1 - alpha) * rmsSuave;
 
   return rmsSuave;
@@ -145,10 +141,20 @@ float calcularRMS() {
 // ======================================================
 void loop() {
 
-  digitalWrite(ledEstado, HIGH); // indicador de actividad
+  digitalWrite(ledEstado, HIGH);  // indicador de actividad
+
+  if (!deviceConnected) { // indicador de scaneo BLE
+    digitalWrite(ledBLE, HIGH);
+    delay(200);
+    digitalWrite(ledBLE, LOW);
+    delay(200);
+  }
+
 
   // Si hay conexión BLE, mandar datos
   if (deviceConnected) {
+
+    digitalWrite(ledBLE, LOW);  // indicador de actividad BLE
 
     float valorRMS = calcularRMS();  // obtiene RMS filtrado
 
@@ -179,12 +185,14 @@ void loop() {
     // Enviar nivel (string)
     pNivelCharacteristic->setValue(nivel.c_str());
     pNivelCharacteristic->notify();
+  } else {
+    digitalWrite(ledBLE, LOW);  // indicador de actividad BLE
   }
 
   // Manejo automático de reconexión BLE
   if (!deviceConnected && oldDeviceConnected) {
     delay(500);
-    pServer->startAdvertising(); // reinicia advertising
+    pServer->startAdvertising();  // reinicia advertising
     Serial.println("→ Advertising reiniciado");
   }
 
