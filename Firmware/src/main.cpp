@@ -52,11 +52,11 @@ const int ADC_MAX_COUNT = 4095;
 class MyServerCallbacks : public BLEServerCallbacks {
   void onConnect(BLEServer *pServer) {
     deviceConnected = true;
-    Serial.println("✓ Cliente conectado");
+    Serial.println("Cliente conectado");
   }
   void onDisconnect(BLEServer *pServer) {
     deviceConnected = false;
-    Serial.println("✗ Cliente desconectado");
+    Serial.println("Cliente desconectado");
   }
 };
 
@@ -103,8 +103,8 @@ void setup() {
   pAdvertising->addServiceUUID(SERVICE_UUID);
   BLEDevice::startAdvertising();
 
-  Serial.println("✓ Servicio BLE iniciado");
-  Serial.println("→ Esperando conexión...\n");
+  Serial.println("Servicio BLE iniciado");
+  Serial.println("Esperando conexión...\n");
 }
 
 // =========================================
@@ -150,7 +150,6 @@ void loop() {
     delay(200);
   }
 
-
   // Si hay conexión BLE, mandar datos
   if (deviceConnected) {
 
@@ -160,8 +159,8 @@ void loop() {
 
     // Clasificación por nivel de voltaje
     String nivel;
-    if (valorRMS >= 2.2) nivel = "ALTO";
-    else if (valorRMS >= 1.1) nivel = "MEDIO";
+    if (valorRMS >= 1.6) nivel = "ALTO";
+    else if (valorRMS >= 0.8) nivel = "MEDIO";
     else nivel = "BAJO";
 
     // Escribe en el monitor serial
@@ -185,19 +184,17 @@ void loop() {
     // Enviar nivel (string)
     pNivelCharacteristic->setValue(nivel.c_str());
     pNivelCharacteristic->notify();
-  } else {
-    digitalWrite(ledBLE, LOW);  // indicador de actividad BLE
   }
 
   // Manejo automático de reconexión BLE
   if (!deviceConnected && oldDeviceConnected) {
     delay(500);
     pServer->startAdvertising();  // reinicia advertising
-    Serial.println("→ Advertising reiniciado");
+    Serial.println("Advertising reiniciado");
   }
 
   if (deviceConnected && !oldDeviceConnected) {
-    Serial.println("→ Cliente conectado, enviando datos...\n");
+    Serial.println("Cliente conectado, enviando datos...\n");
   }
 
   oldDeviceConnected = deviceConnected;
