@@ -156,11 +156,11 @@ void loop() {
     digitalWrite(ledBLE, LOW);  // indicador de actividad BLE
 
     float valorRMS = calcularRMS();  // obtiene RMS filtrado
-
+  
     // Clasificación por nivel de voltaje
     String nivel;
-    if (valorRMS >= 1.6) nivel = "ALTO";
-    else if (valorRMS >= 0.8) nivel = "MEDIO";
+    if (valorRMS >= 1.9) nivel = "ALTO";
+    else if (valorRMS >= 1.5) nivel = "MEDIO";
     else nivel = "BAJO";
 
     // Escribe en el monitor serial
